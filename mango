@@ -1,0 +1,98 @@
+
+
+# app.py
+
+from flask import Flask, jsonify
+import json
+
+app = Flask(__name__)
+
+@app.route('/api')
+def get_data():
+    try:
+        with open('data.json', 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+data.json:
+
+[
+  {"name": "Rohit", "age": 24},
+  {"name": "Keval", "age": 22}
+]
+
+Output:
+Visit http://127.0.0.1:5000/api and the output will be JSON data like:
+
+[
+  {"name": "Rohit", "age": 24},
+  {"name": "Keval", "age": 22}
+]
+
+Task 2: Form Submission to MongoDB Atlas
+Create a form on the frontend that, when submitted, inserts data into MongoDB Atlas. Upon successful submission, the user should be redirected to another page displaying the message "Data submitted successfully". If there's an error during submission, display the error on the same page without redirection.
+Code:
+
+# app.py
+
+from flask import Flask, render_template, request, redirect, url_for
+from pymongo import MongoClient
+
+app = Flask(__name__)
+
+client = MongoClient("your_mongo_connection_string")
+db = client['your_db_name']
+collection = db['your_collection_name']
+
+@app.route('/')
+def index():
+    return render_template('form.html')
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    try:
+        name = request.form['name']
+        email = request.form['email']
+        collection.insert_one({'name': name, 'email': email})
+        return redirect(url_for('success'))
+    except Exception as e:
+        return render_template('form.html', error=str(e))
+
+@app.route('/success')
+def success():
+    return "Data submitted successfully"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+form.html (in templates folder):
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit Form</title>
+</head>
+<body>
+    <h2>Submit Your Info</h2>
+    <form method="post" action="/submit">
+        Name: <input type="text" name="name"><br><br>
+        Email: <input type="email" name="email"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+</body>
+</html>
+
+Output:
+• Form Page: User enters name and email.
+• After submission: Redirected to "/success" showing "Data submitted successfully".
+• If error: Error is shown on the same form page.
+• MongoDB Atlas: Data is inserted in the specified database and collection.
