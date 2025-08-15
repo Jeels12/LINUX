@@ -1,0 +1,85 @@
+Frontend: server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
+
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.get('/', (req, res) => {
+    res.send(`
+        <form method="POST" action="/submit">
+            <label>Name:</label>
+            <input type="text" name="name" required/>
+            <button type="submit">Submit</button>
+        </form>
+    `);
+});
+
+app.post('/submit', async (req, res) => {
+    const { name } = req.body;
+    const response = await fetch('http://backend:5000/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+    });
+    const data = await response.json();
+    res.send(`<h1>${data.message}</h1>`);
+});
+
+app.listen(3000, () => console.log('Frontend running on port 3000'));
+
+Frontend: Dockerfile
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]
+
+Backend: app.py
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/process', methods=['POST'])
+def process():
+    data = request.get_json()
+    name = data.get("name", "Guest")
+    return jsonify({"message": f"Hello, {name}! This is the Flask backend."})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+
+Backend: requirements.txt
+Flask==2.3.2
+Backend: Dockerfile
+FROM python:3.11
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+docker-compose.yml
+version: '3.9'
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+
+.gitignore
+node_modules/
+.vscode/
+__pycache__/
+
