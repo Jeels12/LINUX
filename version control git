@@ -1,0 +1,58 @@
+# Step 1: Create and link repository
+git init
+git remote add origin git@github.com:YourUsername/RepoName.git
+
+# Step 2: Clone repository via SSH
+git clone git@github.com:YourUsername/RepoName.git
+
+# Step 3: Create a branch with username
+git checkout -b YourUsername
+
+# Step 4: Add Flask project files, commit, and merge
+git add .
+git commit -m "Added Flask project files"
+git checkout main
+git merge YourUsername
+
+# Step 5: Create <your_name>_new branch and update JSON
+git checkout -b YourUsername_new
+# (edit JSON file here)
+git add data.json
+git commit -m "Updated JSON for /api route"
+git checkout main
+git merge YourUsername_new
+
+# Step 6: Handle merge conflicts (if any)
+# (resolve conflicts in editor)
+git add .
+git commit -m "Resolved merge conflicts"
+
+# Step 7: Create master_1 and master_2 branches
+git checkout main
+git checkout -b master_1
+git checkout main
+git checkout -b master_2
+
+# Step 8: Develop frontend in master_1 and backend in master_2
+# (code changes done here)
+
+# Step 9: Merge master_1 and master_2 into main
+git checkout main
+git merge master_1
+git merge master_2
+
+# Step 10: Enhance To-Do form in master_1 with sequential commits
+# Commit 1: Item ID
+git commit -m "Add Item ID field"
+# Commit 2: Item UUID
+git commit -m "Add Item UUID field"
+# Commit 3: Item Hash
+git commit -m "Add Item Hash field"
+
+# Step 11: Git reset to only Item ID commit
+git reset --soft <commit-hash>
+git commit -m "Recommit with only Item ID"
+
+# Step 12: Rebase main onto master_1
+git checkout master_1
+git rebase main
